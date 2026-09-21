@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="ETF-Rechner">
+  <rect width="512" height="512" rx="112" fill="#0f172a"/>
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M104 384h304" stroke="#334155" stroke-width="14"/>
+    <path d="M104 128v256" stroke="#334155" stroke-width="14"/>
+    <path d="M120 352 C 200 348, 268 320, 320 250 S 384 150, 400 148" stroke="#2563eb" stroke-width="30"/>
+    <path d="M120 366 C 200 366, 300 366, 400 366" stroke="#64748b" stroke-width="16" stroke-dasharray="26 22"/>
+  </g>
+  <circle cx="400" cy="148" r="26" fill="#2563eb"/>
+</svg>

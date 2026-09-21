@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "ETF-Rechner: Sparplan, Inflation, Steuer",
+  "short_name": "ETF-Rechner",
+  "description": "Zeigt anschaulich, was ein ETF-Sparplan über die Jahre macht - inklusive Inflation und Abgeltungsteuer.",
+  "lang": "de",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f1f5f9",
+  "theme_color": "#0f172a",
+  "categories": ["finance", "education", "utilities"],
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

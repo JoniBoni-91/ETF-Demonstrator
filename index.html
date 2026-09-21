@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ETF-Rechner</title>
+<meta name="description" content="Zeigt anschaulich, was ein ETF-Sparplan über die Jahre macht - mit Inflation und Abgeltungsteuer.">
+<meta name="theme-color" content="#0f172a">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ETF-Rechner">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+<header class="head">
+  <div class="head-copy">
+    <h1>Was ein ETF-Sparplan wirklich macht</h1>
+    <p class="lead">Vier Zahlen eingeben und sehen, wie sich Zinseszins, Inflation und Abgeltungsteuer über die Jahre auswirken.</p>
+  </div>
+  <button id="settingsBtn" class="settings-btn" type="button" aria-label="Einstellungen öffnen" title="Einstellungen">⚙</button>
+</header>
+
+<main>
+
+<section class="card inputs" id="savingsInputs" aria-label="Eingaben für den Sparplan">
+  <div class="field">
+    <label for="rate">Sparrate <span class="unit">Euro pro Monat</span></label>
+    <div class="row">
+      <input type="number" id="rate" min="0" max="5000" step="10" value="250" inputmode="numeric">
+      <input type="range" id="rateSlider" min="0" max="2000" step="10" value="250" aria-label="Sparrate schieben">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="ret"><span id="retLabelText">Rendite</span> <span class="unit">Prozent pro Jahr</span></label>
+    <div class="row">
+      <input type="number" id="ret" min="-5" max="20" step="0.1" value="7" inputmode="decimal">
+      <input type="range" id="retSlider" min="-5" max="15" step="0.1" value="7" aria-label="Rendite schieben">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="infl">Inflation <span class="unit">Prozent pro Jahr</span></label>
+    <div class="row" id="inflControls">
+      <input type="number" id="infl" min="0" max="15" step="0.1" value="2" inputmode="decimal">
+      <input type="range" id="inflSlider" min="0" max="10" step="0.1" value="2" aria-label="Inflation schieben">
+    </div>
+    <p id="historicalInflationHint" class="field-hint" hidden>Echte deutsche Jahresraten werden verwendet.</p>
+  </div>
+
+  <div class="field">
+    <label for="years">Laufzeit <span class="unit">Jahre</span></label>
+    <div class="row">
+      <input type="number" id="years" min="1" max="60" step="1" value="30" inputmode="numeric">
+      <input type="range" id="yearsSlider" min="1" max="50" step="1" value="30" aria-label="Laufzeit schieben">
+    </div>
+  </div>
+
+  <div class="field" id="startYearField" hidden>
+    <label for="startYear">Startjahr <span class="unit">historischer Zeitraum</span></label>
+    <div class="row">
+      <input type="number" id="startYear" min="1970" max="1996" step="1" value="1996" inputmode="numeric">
+      <input type="range" id="startYearSlider" min="1970" max="1996" step="1" value="1996" aria-label="Startjahr schieben">
+    </div>
+    <div class="year-scale" aria-hidden="true">
+      <div class="year-scale-track"><div class="year-scale-window" id="yearScaleWindow"></div></div>
+      <div class="year-scale-labels"><span>1970</span><span>2025</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="card inputs" id="comparisonInputs" aria-label="Eingaben für den Anlagenvergleich" hidden>
+  <div class="field">
+    <label for="compareCapital">Startkapital <span class="unit">Euro einmalig</span></label>
+    <div class="row">
+      <input type="number" id="compareCapital" min="0" max="500000" step="500" value="10000" inputmode="numeric">
+      <input type="range" id="compareCapitalSlider" min="0" max="500000" step="1000" value="10000" aria-label="Startkapital schieben">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="compareYears">Laufzeit <span class="unit">Jahre</span></label>
+    <div class="row">
+      <input type="number" id="compareYears" min="1" max="56" step="1" value="30" inputmode="numeric">
+      <input type="range" id="compareYearsSlider" min="1" max="56" step="1" value="30" aria-label="Vergleichslaufzeit schieben">
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="compareStartYear">Startjahr <span class="unit">historischer Zeitraum</span></label>
+    <div class="row">
+      <input type="number" id="compareStartYear" min="1970" max="1996" step="1" value="1996" inputmode="numeric">
+      <input type="range" id="compareStartYearSlider" min="1970" max="1996" step="1" value="1996" aria-label="Vergleichsstartjahr schieben">
+    </div>
+    <div class="year-scale" aria-hidden="true">
+      <div class="year-scale-track"><div class="year-scale-window" id="compareYearScaleWindow"></div></div>
+      <div class="year-scale-labels"><span>1970</span><span>2025</span></div>
+    </div>
+  </div>
+
+  <div class="field asset-field" role="group" aria-labelledby="compareAssetsLabel">
+    <span class="field-label" id="compareAssetsLabel">Anlagen vergleichen</span>
+    <div class="asset-options" id="compareAssets"></div>
+  </div>
+</section>
+
+<section class="card" aria-label="Verlauf">
+  <div id="heroIrr" class="hero-irr" hidden>
+    <span class="hero-irr-label">Erzielte Rendite p.a.</span>
+    <span class="hero-irr-value" id="heroIrrValue">–</span>
+  </div>
+  <div class="tabs" role="tablist" aria-label="Rechenmodus">
+    <button class="tab active" type="button" role="tab" aria-selected="true" data-mode="planning">Planung</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-mode="historical">Rückblick</button>
+    <button class="tab" type="button" role="tab" aria-selected="false" data-mode="comparison">Vergleich</button>
+  </div>
+  <div class="chartwrap">
+    <canvas id="chart" role="img" aria-label="Verlauf von eingezahltem Kapital und Depotwert über die Laufzeit"></canvas>
+    <div id="readout" class="readout" hidden></div>
+    <p id="chartEmpty" class="chart-empty" hidden>Wähle mindestens eine Anlage</p>
+  </div>
+  <ul class="legend" id="legend"></ul>
+</section>
+
+<section class="card" id="resultSection" aria-label="Ergebnis am Laufzeitende">
+  <h2 id="resultTitle">Am Ende der Laufzeit</h2>
+  <div id="savingsResults">
+    <div class="tiles" id="tiles"></div>
+
+    <h3 class="barTitle">Woraus der Depotwert besteht</h3>
+    <div class="bar" id="bar" role="img" aria-label="Aufteilung des Depotwerts in Einzahlung, Gewinn nach Steuern und Steuer"></div>
+    <ul class="barLegend" id="barLegend"></ul>
+
+    <div id="historicalResults" hidden>
+      <h3 class="crisisTitle">Krisenjahre in diesem Zeitraum</h3>
+      <div id="crisisList" class="crisis-list"></div>
+    </div>
+  </div>
+
+  <div id="comparisonResults" hidden>
+    <p class="hint empty-selection" id="compareEmptyResults" hidden>Wähle mindestens eine Anlage</p>
+    <div id="compareAssetResults"></div>
+  </div>
+</section>
+
+<section class="card explain" aria-label="Erklaerung der Rechnung">
+  <h2>So ist die Rechnung aufgebaut</h2>
+  <div id="planningExplain">
+    <p class="hint">Alle Zahlen unten sind mit deinen aktuellen Eingaben gerechnet.</p>
+
+    <h3>1. Von der Jahresrendite zum Monatszins</h3>
+    <p id="ex1"></p>
+
+    <h3>2. Der Sparplan Monat für Monat</h3>
+    <p id="ex2"></p>
+    <p class="formula">Neuer Depotwert = (alter Depotwert + Sparrate) &times; (1 + Monatszins)</p>
+    <p id="ex2b"></p>
+
+    <h3>3. Was davon Gewinn ist</h3>
+    <p id="ex3"></p>
+
+    <h3>4. Die Abgeltungsteuer</h3>
+    <p>Beim Verkauf wird nur der <strong>Gewinn</strong> besteuert, nicht das eingezahlte Geld. Auf den Gewinn fallen 25&nbsp;% Abgeltungsteuer an, darauf nochmal 5,5&nbsp;% Solidaritätszuschlag &ndash; zusammen 26,375&nbsp;%. Bei einem Aktien-ETF bleiben davor 30&nbsp;% des Gewinns steuerfrei, das ist die sogenannte Teilfreistellung. Sie gleicht aus, dass der Fonds selbst schon Steuern trägt: auf inländische Dividenden zahlt er 15&nbsp;% Körperschaftsteuer, und ausländische Quellensteuer kannst du seit 2018 nicht mehr selbst anrechnen.</p>
+    <p class="formula">Steuersatz = 25&nbsp;% &times; 1,055 &times; (1 &minus; 30&nbsp;%) = <strong>18,4625&nbsp;%</strong> vom Gewinn</p>
+    <p id="ex4"></p>
+
+    <h3>5. Inflation: was das Geld dann noch wert ist</h3>
+    <p id="ex5"></p>
+    <p class="formula">Kaufkraft heute = Betrag &divide; (1 + Inflation)<sup>Jahre</sup></p>
+    <p id="ex5b"></p>
+
+    <h3>6. Der ehrliche Endwert</h3>
+    <p id="ex6"></p>
+  </div>
+
+  <div id="historicalExplain" hidden>
+    <p class="hint">Alle Zahlen unten beziehen sich auf den gewählten historischen Zeitraum.</p>
+
+    <h3>1. Zeitraum und Datenquellen</h3>
+    <p id="histEx1"></p>
+
+    <h3>2. Vom Jahreswert zur geglätteten Kurve</h3>
+    <p id="histEx2"></p>
+    <p class="formula">Monatszins im Kalenderjahr = (1 + Jahresrendite)<sup>1/12</sup> &minus; 1</p>
+
+    <h3>3. Erzielte Rendite</h3>
+    <p id="histEx3"></p>
+
+    <h3>4. Abstand zur Vergleichslinie</h3>
+    <p id="histEx4"></p>
+
+    <h3>5. Rückschläge, Steuer und Kaufkraft</h3>
+    <p id="histEx5"></p>
+  </div>
+
+  <div id="comparisonExplain" hidden>
+    <p class="hint">Alle Zahlen unten beziehen sich auf die gewählte Einmalanlage und den historischen Zeitraum.</p>
+    <p class="hint empty-selection" id="compareExplainEmpty" hidden>Wähle mindestens eine Anlage</p>
+
+    <div id="compareExplainContent">
+      <h3>1. Zeitraum und Einmalanlage</h3>
+      <p id="compareEx1"></p>
+
+      <h3>2. Erzielte Rendite direkt ausrechnen</h3>
+      <p id="compareEx2"></p>
+      <p class="formula">Endwert = Startkapital &times; (1 + Rendite)<sup>Jahre</sup><br>
+        Rendite = (Endwert &divide; Startkapital)<sup>1/Jahre</sup> &minus; 1</p>
+      <div id="comparePerformanceExplain"></div>
+
+      <h3>3. Steuerregel je Anlage</h3>
+      <div id="compareTaxExplain"></div>
+
+      <h3>4. Inflation und Kaufkraft</h3>
+      <p id="compareEx4"></p>
+    </div>
+  </div>
+
+  <h3>Was diese Rechnung bewusst weglässt</h3>
+  <ul class="omit">
+    <li><strong>Sparerpauschbetrag:</strong> 1.000&nbsp;Euro Kapitalerträge pro Person und Jahr bleiben steuerfrei (2.000&nbsp;Euro bei Zusammenveranlagung, Freistellungsauftrag vorausgesetzt). Weil dieser Rechner die ganze Steuer erst im Verkaufsjahr ansetzt, wirkt der Pauschbetrag hier nur einmal und spart rund 185&nbsp;Euro &ndash; nicht einmal pro Jahr.</li>
+    <li><strong>Vorabpauschale:</strong> Der Staat besteuert während der Laufzeit jährlich einen kleinen pauschalen Betrag vorab und rechnet ihn beim Verkauf gegen. Hier fällt die gesamte Steuer erst am Ende an.</li>
+    <li><strong>Kirchensteuer:</strong> nur für Kirchenmitglieder, 8&nbsp;% (Baden-Württemberg, Bayern) beziehungsweise 9&nbsp;% (übrige Länder) der Abgeltungsteuer. Weil sie zugleich als Sonderausgabe abziehbar ist, steigt der effektive Satz auf den Gewinn von 18,4625&nbsp;% auf rund 19,5&nbsp;%, also um etwa einen Prozentpunkt.</li>
+    <li><strong>Kosten:</strong> Fondskosten (TER), Depot- und Ordergebühren fehlen. Sie schmälern die Rendite und sind in keiner Kurve abgezogen. Bei Gold kommen der An- und Verkaufsspread des Händlers (bei Barren und Münzen oft 3&ndash;7&nbsp;%) sowie Lager- und Versicherungskosten dazu: die Gold-Reihe nutzt Londoner Großhandelspreise, ein Privatanleger kauft teurer und verkauft billiger.</li>
+    <li><strong>Schwankungen innerhalb eines Jahres:</strong> Die Planung nimmt jedes Jahr denselben Prozentsatz an. Der Rückblick nutzt echte Jahreswerte, verteilt diese innerhalb des Jahres aber gleichmäßig auf zwölf Monate. Der Vergleich verbindet ebenfalls nur Jahreswerte.</li>
+    <li><strong>Steuerrecht von heute &ndash; auch rückwirkend:</strong> Gerechnet wird durchgehend mit dem heutigen Recht, auch für Zeiträume, in denen anderes galt. Die Abgeltungsteuer gibt es erst seit 2009, die Teilfreistellung erst seit 2018; vor 2009 gekaufte Fondsanteile waren nach einem Jahr Haltefrist tatsächlich steuerfrei. Im Rückblick liegt die gezeigte Steuer für alte Zeiträume also zu hoch. Und künftige Änderungen kennt niemand.</li>
+  </ul>
+  <p class="disclaimer">Das ist ein Rechenbeispiel zur Veranschaulichung, keine Anlageberatung.</p>
+</section>
+
+</main>
+
+<div id="settingsOverlay" class="settings-overlay" hidden>
+  <div class="settings-panel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-head">
+      <b id="settingsTitle">Einstellungen</b>
+      <button id="settingsCloseBtn" class="settings-close" type="button" aria-label="Einstellungen schließen">✕</button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-row">
+        <div class="settings-info">
+          <b>Als App installieren</b>
+          <p id="installHint">Der ETF-Rechner lässt sich als eigenständige App auf dem Startbildschirm ablegen.</p>
+        </div>
+        <button id="installBtn" class="settings-action-btn" type="button" hidden>Als App installieren</button>
+      </div>
+      <div id="updateSection">
+        <hr class="settings-divider">
+        <div class="settings-row">
+          <div class="settings-info">
+            <b>App aktualisieren</b>
+            <p id="updateHint">Holt die neueste Fassung vom Server und leert den Zwischenspeicher.</p>
+          </div>
+          <button id="updateBtn" class="settings-action-btn" type="button">Jetzt aktualisieren</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="./historical-data.js"></script>
+<script src="./app.js"></script>
+<script src="./pwa.js"></script>
+</body>
+</html>
