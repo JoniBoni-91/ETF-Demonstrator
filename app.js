@@ -15,7 +15,8 @@
     { key: 'paid',    label: 'Eingezahlt',                      cssVar: '--c-paid',    dash: [5, 4] },
     { key: 'nominal', label: 'Depotwert nominal',               cssVar: '--c-nominal', dash: [] },
     { key: 'net',     label: 'Depotwert nach Steuern',          cssVar: '--c-net',     dash: [] },
-    { key: 'real',    label: 'Depotwert real (Kaufkraft heute)', cssVar: '--c-real',   dash: [] }
+    { key: 'real',    label: 'Depotwert real (Kaufkraft heute)', cssVar: '--c-real',   dash: [] },
+    { key: 'paidReal', label: 'Eingezahlt real (Kaufkraft heute)', cssVar: '--c-real', dash: [5, 4] }
   ];
   const REFERENCE_SERIES = {
     key: 'reference', label: 'Konstanter Vergleich', cssVar: '--c-reference', dash: [2, 5]
@@ -34,7 +35,7 @@
   function simulate(input) {
     const months = Math.round(input.years * 12);
     const rm = Math.pow(1 + input.ret, 1 / 12) - 1;
-    const points = [{ month: 0, paid: 0, nominal: 0, gain: 0, tax: 0, net: 0, real: 0 }];
+    const points = [{ month: 0, paid: 0, nominal: 0, gain: 0, tax: 0, net: 0, real: 0, paidReal: 0 }];
 
     let value = 0;
     for (let m = 1; m <= months; m++) {
@@ -49,7 +50,10 @@
         gain,
         tax,
         net: value - tax,
-        real: value / Math.pow(1 + input.infl, m / 12)
+        real: value / Math.pow(1 + input.infl, m / 12),
+        // Einzahlungen ohne Zinsen, gleich abgezinst wie 'real': die Kaufkraft
+        // des bis Monat m angesparten Bargelds in heutigem Geld.
+        paidReal: paid / Math.pow(1 + input.infl, m / 12)
       });
     }
 
@@ -433,8 +437,9 @@
 
   function renderLegend(sim) {
     document.querySelector('#legend').innerHTML = seriesFor(sim)
-      .map(s => '<li><span class="swatch ' + (s === REFERENCE_SERIES ? 'dotted' : '') +
-                '" style="background:var(' + s.cssVar + ')"></span>' + s.label + '</li>')
+      .map(s => '<li><span class="swatch ' +
+                (s === REFERENCE_SERIES ? 'dotted' : s.dash.length ? 'dashed' : '') +
+                '" style="--swatch:var(' + s.cssVar + ');background:var(' + s.cssVar + ')"></span>' + s.label + '</li>')
       .join('');
   }
 
@@ -579,7 +584,11 @@
 
     set('ex5b',
       'Der Depotwert von ' + num(l.nominal) + ' entspricht damit einer heutigen Kaufkraft von ' +
-      num(l.real) + '. Genau das zeigt die orangefarbene Linie im Diagramm.');
+      num(l.real) + '. Genau das zeigt die orangefarbene Linie im Diagramm. ' +
+      'Die gestrichelte orangefarbene Linie rechnet die Einzahlungen genauso um: ' + num(l.paid) +
+      ' ohne Zinsen, etwa auf dem Girokonto, wären in heutiger Kaufkraft nur noch ' + num(l.paidReal) +
+      ' wert. Der Abstand zwischen beiden orangefarbenen Linien ist der echte Kaufkraftgewinn vor Steuern: ' +
+      num(l.real - l.paidReal) + '.');
 
     set('ex6',
       'Beides zusammen – Steuer abgezogen und in heutige Kaufkraft umgerechnet – ergibt <span class="num">' +

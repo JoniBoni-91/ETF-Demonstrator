@@ -21,9 +21,11 @@ lokale Server braucht Python 3.9+, der Selbsttest Node 18+.
 ## Die drei Ansichten
 
 **Planung** — der klassische Sparplanrechner. Sparrate, erwartete Rendite,
-Inflation und Laufzeit einstellen. Das Diagramm zeigt vier Linien: eingezahltes
-Kapital, Depotwert nominal, Depotwert nach Steuern und Depotwert in heutiger
-Kaufkraft.
+Inflation und Laufzeit einstellen. Das Diagramm zeigt fünf Linien: eingezahltes
+Kapital, Depotwert nominal, Depotwert nach Steuern, Depotwert in heutiger
+Kaufkraft und, gestrichelt, die Einzahlungen in heutiger Kaufkraft. Der Abstand
+der beiden letzten zeigt, was real übrig bleibt gegenüber Geld, das nur auf dem
+Konto liegt.
 
 **Rückblick** — dieselbe Rechnung, aber statt einer konstanten Wunschrendite die
 **echten Jahresrenditen des MSCI World von 1970 bis 2025**. Das Startjahr ist
@@ -44,7 +46,12 @@ Besteuerung — was bei Gold einen spürbaren Unterschied macht.
 
 ## Ausprobieren
 
-**Schnellster Weg:** `index.html` im Browser öffnen. Alle drei Ansichten,
+**Online:** Jeder Push auf `main` geht über GitHub Actions automatisch nach
+GitHub Pages: <https://joniboni-91.github.io/ETF-Demonstrator/>. Dort lässt
+sich die App auch direkt als PWA installieren, auf dem iPhone über Teilen →
+„Zum Home-Bildschirm“.
+
+**Lokal:** `index.html` im Browser öffnen. Alle drei Ansichten,
 Diagramme und Erklärtexte funktionieren sofort.
 
 **Mit Service Worker und Installierbarkeit** (dafür braucht es einen Server, weil
@@ -74,8 +81,8 @@ Workspace, in dem dieses Projekt entstanden ist, und ist auf macOS zugeschnitten
 (WLAN-IP-Ermittlung über `ipconfig getifaddr en0`). In diesem Repo ist diese
 Infrastruktur bewusst nicht enthalten.
 
-Wer die App aufs Handy bringen will, hostet sie am einfachsten selbst irgendwo
-mit HTTPS — es sind nur statische Dateien.
+Wer die App aufs Handy bringen will, nimmt am einfachsten die GitHub-Pages-Fassung
+oben oder hostet sie selbst irgendwo mit HTTPS — es sind nur statische Dateien.
 </details>
 
 ## Stimmt die Rechnung?
@@ -148,7 +155,15 @@ Diese Liste steht auch in der App selbst, direkt unter dem Erklärtext.
 | `manifest.webmanifest`, `icons/` | PWA-Hülle |
 | `rehost_etf.py` | Lokaler Server zum Ausprobieren |
 | `tools/check_math.mjs` | Selbsttest des Rechenkerns |
+| `.github/workflows/` | CI (Selbsttest, Syntax) und Veröffentlichung auf GitHub Pages |
 | `Docs/rechenmodell.md` | Rechenmodell, Datenherkunft, Vereinfachungen im Detail |
+| `LICENSE` | GNU General Public License v3 |
+
+## Lizenz
+
+GNU General Public License v3, siehe [`LICENSE`](LICENSE). Nutzen, ändern und
+weitergeben ist erlaubt; wer eine veränderte Fassung weitergibt, muss sie
+ebenfalls unter der GPLv3 offenlegen.
 
 ---
 

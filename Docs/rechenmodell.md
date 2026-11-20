@@ -43,6 +43,10 @@ verwendet.
   3. Depotwert nach Steuern (bei Verkauf zum jeweiligen Zeitpunkt)
   4. Depotwert real; in der Planung in heutiger Kaufkraft, im Rückblick in
      Kaufkraft des gewählten Startjahres
+  In der Planung kommt eine fünfte, gestrichelte Linie in der Farbe von 4 dazu:
+  die Einzahlungen ohne Zinsen, genauso in heutige Kaufkraft umgerechnet
+  (Summe der Sparraten bis Monat m geteilt durch (1 + Inflation)^(m/12)). Der
+  Abstand zu Linie 4 ist der reale Gewinn gegenüber Geld, das nur herumliegt.
 - Balken am Laufzeitende mit der Aufteilung Einzahlung / Gewinn nach Steuern / Steuer
 - Ergebniskacheln mit den Endwerten
 - Rückblick zusätzlich: gross und farbcodiert über dem Diagramm die erzielte
